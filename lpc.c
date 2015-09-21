@@ -17,11 +17,14 @@
 
 #if LUA_VERSION_NUM < 502
 
-static int lua_absindex(lua_State *L, int idx) {
+#ifndef lua_absindex
+LUALIB_API int lua_absindex(lua_State *L, int idx) {
 	return (idx > 0 || idx <= LUA_REGISTRYINDEX)? idx : lua_gettop(L) + idx + 1;
 } /* lua_absindex() */
+#endif
 
-static void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
+#ifndef luaL_setfuncs
+LUALIB_API void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
 	int i, t = lua_absindex(L, -1 - nup);
 
 	for (; l->name; l++) {
@@ -33,6 +36,7 @@ static void luaL_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
 
 	lua_pop(L, nup);
 } /* luaL_setfuncs() */
+#endif
 
 #define luaL_newlibtable(L, l) \
 	lua_createtable(L, 0, (sizeof (l) / sizeof *(l)) - 1)
@@ -52,7 +56,8 @@ typedef struct luaL_Stream {
 	FILE *f;
 } luaL_Stream;
 
-static int luaL_fileresult(lua_State *L, int stat, const char *filename) {
+#ifndef luaL_fileresult
+LUALIB_API int luaL_fileresult(lua_State *L, int stat, const char *filename) {
 	int en = errno;  /* calls to Lua API may change this value */
 	if (stat) {
 		lua_pushboolean(L, 1);
@@ -68,6 +73,7 @@ static int luaL_fileresult(lua_State *L, int stat, const char *filename) {
 		return 3;
 	}
 }
+#endif
 
 #define isclosed(p) ((p)->f == NULL)
 #define markclosed(p) ((p)->f = NULL)
